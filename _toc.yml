@@ -1,0 +1,11 @@
+# Table of Contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+chapters:
+  - caption: Openvins
+    chapters:
+      - file: notebooks/dynamic_initialization
+
+
