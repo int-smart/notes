@@ -33,7 +33,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install jupyter-book matplotlib numpy
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install sphinx-book-theme myst-parser
 
       - name: Build Jupyter Book
         run: |
