@@ -37,6 +37,19 @@ jobs:
           pip install -r requirements.txt
           pip install sphinx-book-theme myst-parser
 
+      - name: Debug - List files
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Files in root ==="
+          ls -la
+          echo "=== Files in notebooks ==="
+          ls -la notebooks/
+          echo "=== Content of _toc.yml ==="
+          cat _toc.yml
+          echo "=== Content of _config.yml ==="
+          cat _config.yml
+
       - name: Build Jupyter Book
         run: |
           jupyter-book build .

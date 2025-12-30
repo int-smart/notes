@@ -4,8 +4,5 @@
 format: jb-book
 root: intro
 chapters:
-  - caption: Openvins
-    chapters:
-      - file: notebooks/dynamic_initialization
-
+  - file: notebooks/dynamic_initialization
 
