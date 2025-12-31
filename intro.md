@@ -12,5 +12,5 @@ Browse through the notebooks using the navigation menu on the left.
 
 ---
 
-Last updated: {sub-ref}`today`
+Last updated: December 30, 2025
 

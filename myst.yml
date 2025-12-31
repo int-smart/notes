@@ -1,0 +1,20 @@
+version: 1
+project:
+  title: My Learning Journal
+  authors:
+    - name: Your Name
+  github: int-smart/notes
+  # thebe:
+  #   binder:
+  #     repo: YOUR_USERNAME/notes
+  #     provider: github
+  #     url: ''
+  #     ref: main
+  toc:
+    - file: intro.md
+    - file: notebooks/dynamic_initialization.ipynb
+site:
+  options:
+    logo: ''
+    folders: true
+  template: book-theme
