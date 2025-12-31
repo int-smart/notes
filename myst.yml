@@ -1,8 +1,8 @@
 version: 1
 project:
-  title: My Learning Journal
+  title: Notes
   authors:
-    - name: Your Name
+    - name: Abhishek
   github: int-smart/notes
   # thebe:
   #   binder:
