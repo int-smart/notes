@@ -5,3 +5,4 @@ format: jb-book
 root: intro
 chapters:
   - file: notebooks/dynamic_initialization
+  - file: notebooks/example_notebook
