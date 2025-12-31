@@ -41,6 +41,9 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
       - name: Debug - List files
         run: |
           echo "=== Current directory ==="
@@ -55,9 +58,21 @@ jobs:
       - name: Build Jupyter Book
         run: |
           # Build static HTML for deployment (Jupyter Book 2.x)
-          jupyter-book build --html --ci
-          # The output is in _build/html for deployment
+          timeout 120 jupyter-book build --html --ci || true
+          # Kill any background processes
+          pkill -f node || true
+          sleep 2
+          # Verify the output
+          echo "=== Contents of _build directory ==="
           ls -la _build/
+          echo "=== Checking for index.html ==="
+          if [ -f "_build/html/index.html" ]; then
+            echo "✅ index.html found!"
+            ls -lh _build/html/index.html
+          else
+            echo "❌ index.html not found!"
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
