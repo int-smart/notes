@@ -1,8 +1,0 @@
-# Table of Contents
-# Learn more at https://jupyterbook.org/customize/toc.html
-
-format: jb-book
-root: intro
-chapters:
-  - file: notebooks/dynamic_initialization
-  - file: notebooks/example_notebook
