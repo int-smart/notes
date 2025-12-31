@@ -25,6 +25,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -35,7 +40,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install sphinx-book-theme myst-parser
 
       - name: Debug - List files
         run: |
@@ -45,10 +49,8 @@ jobs:
           ls -la
           echo "=== Files in notebooks ==="
           ls -la notebooks/
-          echo "=== Content of _toc.yml ==="
-          cat _toc.yml
-          echo "=== Content of _config.yml ==="
-          cat _config.yml
+          echo "=== Content of myst.yml ==="
+          cat myst.yml
 
       - name: Build Jupyter Book
         run: |
