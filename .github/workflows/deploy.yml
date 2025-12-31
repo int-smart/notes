@@ -12,6 +12,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 # Allow only one concurrent deployment
 concurrency:
@@ -21,6 +22,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -58,19 +62,49 @@ jobs:
       - name: Build Jupyter Book
         run: |
           # Build static HTML for deployment (Jupyter Book 2.x)
-          timeout 120 jupyter-book build --html --ci || true
-          # Kill any background processes
-          pkill -f node || true
+          # Start the build in background and wait for it to generate files
+          jupyter-book build --html --ci &
+          BUILD_PID=$!
+          
+          # Wait for index.html to be created (max 2 minutes)
+          echo "⏳ Waiting for build to complete..."
+          for i in {1..120}; do
+            if [ -f "_build/html/index.html" ]; then
+              echo "✅ Build completed! index.html found after $i seconds"
+              break
+            fi
+            sleep 1
+          done
+          
+          # Kill the background process and any node processes
+          kill $BUILD_PID 2>/dev/null || true
+          pkill -f "node.*3000" 2>/dev/null || true
+          pkill -f "node.*3001" 2>/dev/null || true
           sleep 2
+          
           # Verify the output
           echo "=== Contents of _build directory ==="
           ls -la _build/
-          echo "=== Checking for index.html ==="
+          echo "=== Checking final index.html ==="
           if [ -f "_build/html/index.html" ]; then
-            echo "✅ index.html found!"
+            echo "✅ index.html exists!"
             ls -lh _build/html/index.html
+            echo "=== HTML files generated ==="
+            find _build/html -name "*.html" -type f
           else
             echo "❌ index.html not found!"
+            exit 1
+          fi
+
+      - name: Verify build output before upload
+        run: |
+          echo "=== Verifying _build/html directory ==="
+          if [ -d "_build/html" ]; then
+            echo "✅ _build/html directory exists"
+            echo "Directory size: $(du -sh _build/html)"
+            echo "File count: $(find _build/html -type f | wc -l)"
+          else
+            echo "❌ _build/html directory not found!"
             exit 1
           fi
 
@@ -78,6 +112,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./_build/html
+          retention-days: 1
 
   deploy:
     environment:
@@ -85,6 +120,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      pages: write
+      id-token: write
+      actions: read
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
