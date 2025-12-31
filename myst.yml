@@ -14,9 +14,7 @@ project:
     - file: intro.md
     - file: notebooks/dynamic_initialization.ipynb
 site:
-  url: https://int-smart.github.io
-  baseUrl: /notes
+  template: book-theme
   options:
     logo: ''
     folders: true
-  template: book-theme
