@@ -62,8 +62,11 @@ jobs:
           cat myst.yml
 
       - name: Build Jupyter Book
+        env:
+          BASE_URL: /${{ github.event.repository.name }}
         run: |
           # Build static HTML for deployment (Jupyter Book 2.x)
+          echo "🔧 Building with BASE_URL=$BASE_URL"
           # Start the build in background and wait for it to generate files
           jupyter-book build --html --ci &
           BUILD_PID=$!

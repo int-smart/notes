@@ -18,3 +18,4 @@ site:
     logo: ''
     folders: true
   template: book-theme
+  url: https://int-smart.github.io/notes
