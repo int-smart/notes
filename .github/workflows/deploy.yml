@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  # For project pages: https://<owner>.github.io/<repo>/
   BASE_URL: /${{ github.event.repository.name }}
 
 permissions:
@@ -15,7 +14,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
@@ -38,7 +37,7 @@ jobs:
       - name: Install MyST Markdown
         run: npm install -g mystmd
 
-      - name: Build HTML (and verify output)
+      - name: Build HTML (force IPv4 localhost)
         env:
           BASE_URL: ${{ env.BASE_URL }}
           HOST: 127.0.0.1
@@ -46,30 +45,20 @@ jobs:
           echo "BASE_URL=$BASE_URL"
           echo "HOST=$HOST"
 
-          # Don't let a flaky nonzero exit stop us before we can verify output
-          set +e
-          myst build --html 2>&1 | tee myst-build.log
-          MYST_EXIT=${PIPESTATUS[0]}
-          set -e
+          # Force localhost -> 127.0.0.1 so crawler doesn't try ::1 (IPv6)
+          echo "127.0.0.1 localhost" | sudo tee -a /etc/hosts
+          getent hosts localhost
 
-          echo "myst exit code: $MYST_EXIT"
+          myst build --html
 
-          echo "=== Build output check ==="
-          ls -la _build || true
-          ls -la _build/html || true
-
-          # Hard gate: only deploy if the static site AND shared chunks exist
+          # Verify output is actually present
           test -f _build/html/index.html
           test -d _build/html/myst_assets_folder/_shared
-
-          echo "✅ Static output looks complete (index.html + myst_assets_folder/_shared present). Proceeding."
-          # If output is complete, ignore myst's exit code (workaround for the server/check flake)
-          exit 0
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: "./_build/html"
+          path: ./_build/html
 
       - name: Deploy to GitHub Pages
         id: deployment
