@@ -22,6 +22,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload-artifact.outputs.artifact-id }}
     permissions:
       contents: read
       actions: write
@@ -109,10 +111,20 @@ jobs:
           fi
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        id: upload-artifact
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./_build/html
           retention-days: 1
+      
+      - name: Debug - Artifact Upload Result
+        run: |
+          echo "=== Artifact Upload Complete ==="
+          echo "Artifact ID: ${{ steps.upload-artifact.outputs.artifact-id }}"
+          echo "Artifact URL: ${{ steps.upload-artifact.outputs.artifact-url }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Run Number: ${{ github.run_number }}"
+          echo "Repository: ${{ github.repository }}"
 
   deploy:
     environment:
@@ -125,7 +137,42 @@ jobs:
       id-token: write
       actions: read
     steps:
+      - name: Debug - Deploy Job Context
+        run: |
+          echo "=== Deploy Job Starting ==="
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Run Number: ${{ github.run_number }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "=== Artifact from build job ==="
+          echo "Artifact ID from build: ${{ needs.build.outputs.artifact-id }}"
+          echo "=== Checking artifacts via API ==="
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" \
+            | jq '.artifacts[] | {name: .name, id: .id}' || echo "Could not fetch artifacts"
+          
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+        
+      - name: Retry deployment if failed
+        if: steps.deployment.outcome == 'failure'
+        id: deployment-retry
+        uses: actions/deploy-pages@v4
+        
+      - name: Debug - Deployment Result
+        if: always()
+        run: |
+          echo "=== Deployment Complete ==="
+          echo "Initial deployment outcome: ${{ steps.deployment.outcome }}"
+          echo "Retry deployment outcome: ${{ steps.deployment-retry.outcome }}"
+          echo "Page URL (initial): ${{ steps.deployment.outputs.page_url }}"
+          echo "Page URL (retry): ${{ steps.deployment-retry.outputs.page_url }}"
+          echo "Job Status: ${{ job.status }}"
+          echo ""
+          echo "🌐 Your site should be available at:"
+          echo "   https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
 
