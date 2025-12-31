@@ -37,21 +37,22 @@ jobs:
       - name: Install MyST Markdown
         run: npm install -g mystmd
 
-      - name: Build HTML (force IPv4 localhost)
+      - name: Build HTML (force IPv4 for localhost)
         env:
           BASE_URL: ${{ env.BASE_URL }}
           HOST: 127.0.0.1
+          NODE_OPTIONS: --dns-result-order=ipv4first
         run: |
           echo "BASE_URL=$BASE_URL"
           echo "HOST=$HOST"
+          echo "NODE_OPTIONS=$NODE_OPTIONS"
 
-          # Force localhost -> 127.0.0.1 so crawler doesn't try ::1 (IPv6)
-          echo "127.0.0.1 localhost" | sudo tee -a /etc/hosts
+          # Sanity: show how localhost resolves
           getent hosts localhost
 
           myst build --html
 
-          # Verify output is actually present
+          # Verify output exists
           test -f _build/html/index.html
           test -d _build/html/myst_assets_folder/_shared
 
