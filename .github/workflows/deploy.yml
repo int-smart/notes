@@ -69,65 +69,27 @@ jobs:
       - name: Build Jupyter Book
         env:
           BASE_URL: /${{ github.event.repository.name }}
-          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          SITE_URL: https://${{ github.repository_owner }}.github.io
         run: |
-          # Build static HTML for deployment (Jupyter Book 2.x)
-          echo "🔧 Building with BASE_URL=$BASE_URL"
-          echo "🔧 Building with SITE_URL=$SITE_URL"
-          
-          # Update myst.yml with the correct site URL and baseUrl
-          if [ -f "myst.yml" ]; then
-            echo "Updating myst.yml with site URL and baseUrl..."
-            
-            # Check if baseUrl already exists in the file
-            if grep -q "baseUrl:" myst.yml; then
-              # Update existing baseUrl
-              sed -i "s|baseUrl:.*|baseUrl: $BASE_URL|g" myst.yml
-            else
-              # Add baseUrl after the site: line
-              sed -i "/^site:/a\\  baseUrl: $BASE_URL" myst.yml
-            fi
-            
-            # Update the URL
-            sed -i "s|url:.*|url: $SITE_URL|g" myst.yml
-            
-            echo "Updated myst.yml:"
-            cat myst.yml
-          fi
-          
-          # Start the build in background and wait for it to generate files
-          jupyter-book build --html --ci &
-          BUILD_PID=$!
-          
-          # Wait for index.html to be created (max 2 minutes)
-          echo "⏳ Waiting for build to complete..."
-          for i in {1..120}; do
-            if [ -f "_build/html/index.html" ]; then
-              echo "✅ Build completed! index.html found after $i seconds"
-              break
-            fi
-            sleep 1
-          done
-          
-          # Kill the background process and any node processes
-          kill $BUILD_PID 2>/dev/null || true
-          pkill -f "node.*3000" 2>/dev/null || true
-          pkill -f "node.*3001" 2>/dev/null || true
-          sleep 2
-          
-          # Verify the output
-          echo "=== Contents of _build directory ==="
-          ls -la _build/
-          echo "=== Checking final index.html ==="
-          if [ -f "_build/html/index.html" ]; then
-            echo "✅ index.html exists!"
-            ls -lh _build/html/index.html
-            echo "=== HTML files generated ==="
-            find _build/html -name "*.html" -type f
-          else
-            echo "❌ index.html not found!"
-            exit 1
-          fi
+          echo "🔧 BASE_URL=$BASE_URL"
+          echo "🔧 SITE_URL=$SITE_URL"
+
+          # (Optional) show myst.yml so you know what is used
+          echo "=== myst.yml (before build) ==="
+          cat myst.yml
+
+          # Run build, but don't let it hang forever
+          timeout 15m jupyter-book build --html --ci
+
+          # Verify BOTH HTML and asset folder exist
+          test -f _build/html/index.html
+          test -d _build/html/myst_assets_folder
+          test -d _build/html/myst_assets_folder/_shared
+
+          echo "✅ Build output looks complete"
+          ls -la _build/html | head
+          ls -la _build/html/myst_assets_folder/_shared | head
+
 
       - name: Verify build output before upload
         run: |
