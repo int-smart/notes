@@ -37,7 +37,7 @@ jobs:
       - name: Install MyST Markdown
         run: npm install -g mystmd
 
-      - name: Build HTML (workaround for myst exit 1)
+      - name: Build HTML (force IPv4 for localhost)
         env:
           BASE_URL: ${{ env.BASE_URL }}
           HOST: 127.0.0.1
@@ -46,29 +46,15 @@ jobs:
           echo "BASE_URL=$BASE_URL"
           echo "HOST=$HOST"
           echo "NODE_OPTIONS=$NODE_OPTIONS"
-      
-          # Run build, capture exit code, but don't fail yet
-          set +e
-          myst build --html 2>&1 | tee myst-build.log
-          MYST_EXIT=${PIPESTATUS[0]}
-          set -e
-      
-          echo "myst exit code: $MYST_EXIT"
-      
-          echo "=== _build contents ==="
-          ls -la _build || true
-          echo "=== _build/html contents ==="
-          ls -la _build/html || true
-      
-          # Only fail if the *static site output* is missing/incomplete
-          if [ -f "_build/html/index.html" ] && [ -d "_build/html/myst_assets_folder/_shared" ]; then
-            echo "✅ Static output present. Continuing even if myst returned non-zero."
-            exit 0
-          fi
-      
-          echo "❌ Static output missing/incomplete; failing build."
-          exit $MYST_EXIT
-      
+
+          # Sanity: show how localhost resolves
+          getent hosts localhost
+
+          myst build --html
+
+          # Verify output exists
+          test -f _build/html/index.html
+          test -d _build/html/myst_assets_folder/_shared
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
