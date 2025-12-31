@@ -64,9 +64,20 @@ jobs:
       - name: Build Jupyter Book
         env:
           BASE_URL: /${{ github.event.repository.name }}
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
         run: |
           # Build static HTML for deployment (Jupyter Book 2.x)
           echo "🔧 Building with BASE_URL=$BASE_URL"
+          echo "🔧 Building with SITE_URL=$SITE_URL"
+          
+          # Update myst.yml with the correct site URL
+          if [ -f "myst.yml" ]; then
+            echo "Updating myst.yml with site URL..."
+            sed -i "s|url:.*|url: $SITE_URL|g" myst.yml
+            echo "Updated myst.yml:"
+            cat myst.yml
+          fi
+          
           # Start the build in background and wait for it to generate files
           jupyter-book build --html --ci &
           BUILD_PID=$!
