@@ -37,7 +37,7 @@ jobs:
       - name: Install MyST Markdown
         run: npm install -g mystmd
 
-      - name: Build HTML (workaround for myst exit 1)
+      - name: Build HTML (and verify output)
         env:
           BASE_URL: ${{ env.BASE_URL }}
           HOST: 127.0.0.1
@@ -47,27 +47,17 @@ jobs:
           echo "HOST=$HOST"
           echo "NODE_OPTIONS=$NODE_OPTIONS"
       
-          # Run build, capture exit code, but don't fail yet
-          set +e
-          myst build --html 2>&1 | tee myst-build.log
-          MYST_EXIT=${PIPESTATUS[0]}
-          set -e
+          myst build --html
       
-          echo "myst exit code: $MYST_EXIT"
+          echo "=== _build/html contents (top) ==="
+          ls -la _build/html | head -n 200
       
-          echo "=== _build contents ==="
-          ls -la _build || true
-          echo "=== _build/html contents ==="
-          ls -la _build/html || true
+          # Verify output is complete for myst 1.7.x book-theme:
+          test -f _build/html/index.html
+          test -d _build/html/build
+          test -f _build/html/myst-theme.css
       
-          # Only fail if the *static site output* is missing/incomplete
-          if [ -f "_build/html/index.html" ] && [ -d "_build/html/myst_assets_folder/_shared" ]; then
-            echo "✅ Static output present. Continuing even if myst returned non-zero."
-            exit 0
-          fi
-      
-          echo "❌ Static output missing/incomplete; failing build."
-          exit $MYST_EXIT
+          echo "✅ Static output present (index.html + build/ + myst-theme.css)"
       
 
       - name: Upload artifact
