@@ -70,10 +70,22 @@ jobs:
           echo "🔧 Building with BASE_URL=$BASE_URL"
           echo "🔧 Building with SITE_URL=$SITE_URL"
           
-          # Update myst.yml with the correct site URL
+          # Update myst.yml with the correct site URL and baseUrl
           if [ -f "myst.yml" ]; then
-            echo "Updating myst.yml with site URL..."
+            echo "Updating myst.yml with site URL and baseUrl..."
+            
+            # Check if baseUrl already exists in the file
+            if grep -q "baseUrl:" myst.yml; then
+              # Update existing baseUrl
+              sed -i "s|baseUrl:.*|baseUrl: $BASE_URL|g" myst.yml
+            else
+              # Add baseUrl after the site: line
+              sed -i "/^site:/a\\  baseUrl: $BASE_URL" myst.yml
+            fi
+            
+            # Update the URL
             sed -i "s|url:.*|url: $SITE_URL|g" myst.yml
+            
             echo "Updated myst.yml:"
             cat myst.yml
           fi

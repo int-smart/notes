@@ -14,6 +14,7 @@ project:
     - file: intro.md
     - file: notebooks/dynamic_initialization.ipynb
 site:
+  baseUrl: /notes
   options:
     logo: ''
     folders: true
