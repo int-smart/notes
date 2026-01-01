@@ -1,77 +1,53 @@
 # My Learning Journal
 
-A collection of my learning notes and explorations, documented as Jupyter notebooks and automatically published to GitHub Pages.
+A collection of learning notes documented as Jupyter notebooks and automatically published to GitHub Pages.
 
-## 📚 View the Journal
+🌐 **Live Site**: https://int-smart.github.io/notes/
 
-Visit the published site at: `https://YOUR_USERNAME.github.io/notes/`
+## 🚀 Quick Start
 
-## 🚀 How It Works
+**Option 1 - Automated** (after cron setup):
+1. Add/edit notebooks in `notebooks/` directory
+2. Wait for midnight - auto-added to toc and deployed
 
-This repository uses [Jupyter Book](https://jupyterbook.org/) to automatically convert Jupyter notebooks into a beautiful website.
-
-### Adding New Notebooks
-
-1. Add your `.ipynb` notebook file to the `notebooks/` directory
-2. Update `_toc.yml` to include your new notebook:
+**Option 2 - Manual** (immediate):
+1. Add notebook to `notebooks/` directory
+2. Update `myst.yml` to include it:
    ```yaml
-   chapters:
-     - file: notebooks/your_new_notebook
+   toc:
+     - file: notebooks/your_notebook
    ```
-3. Commit and push to GitHub
-4. GitHub Actions will automatically build and deploy your updated site!
+3. Commit and push - site auto-deploys
 
-## 📝 Local Development
-
-To build and preview locally:
+## 📝 Local Preview
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Build the book
-jupyter-book build .
-
-# Open _build/html/index.html in your browser
+npm install -g mystmd
+myst build --html
+# Open _build/html/index.html
 ```
 
-## ⚙️ Setup Instructions
+## ⏰ Auto-Commit Setup
 
-### First Time Setup
+Automatically commit notebook changes daily at midnight:
 
-1. **Create a new repository** on GitHub named `notes`
+```bash
+cd scheduler
+./setup_cron.sh
+```
 
-2. **Initialize this directory as a git repository**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/notes.git
-   git push -u origin main
-   ```
+This installs a cron job that:
+- Auto-detects new notebooks in `notebooks/`
+- Auto-adds them to `myst.yml` toc
+- Commits and pushes changes at 00:00
+- Triggers automatic deployment
 
-3. **Enable GitHub Pages**:
-   - Go to your repository on GitHub
-   - Click on "Settings" → "Pages"
-   - Under "Source", select "GitHub Actions"
+**Manual run**: `./scheduler/auto_commit.sh`  
+**View logs**: `cat scheduler/auto_commit.log`
 
-4. **Update configuration**:
-   - Edit `_config.yml` and update the repository URL with your GitHub username
+## ⚙️ Configuration
 
-That's it! Every time you push new notebooks, your site will automatically update.
-
-## 🎨 Customization
-
-- Edit `_config.yml` to change site title, author, and theme settings
-- Edit `intro.md` to customize your homepage
-- Modify `_toc.yml` to organize your notebooks
-
-## 📦 Adding Dependencies
-
-If your notebooks use additional Python packages, add them to `requirements.txt` so they're installed during the build process.
-
----
-
-Happy learning and documenting! 📖✨
+- **myst.yml** - Site config and table of contents
+- **intro.md** - Homepage content
+- **.github/workflows/deploy.yml** - Auto-deployment
 

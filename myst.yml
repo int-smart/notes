@@ -9,6 +9,7 @@ project:
     - file: intro.md
     - file: notebooks/dynamic_initialization.ipynb
     - file: notebooks/example_notebook
+    - file: notebooks/rotations
 
 site:
   template: book-theme

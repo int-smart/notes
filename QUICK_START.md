@@ -1,103 +1,65 @@
 # Quick Start Guide
 
-## 📝 Adding a New Learning Entry
+## 📝 Adding a New Notebook
 
-1. **Copy the template**:
+### With Auto-Commit (Recommended)
+1. **Create notebook**:
    ```bash
-   cp notebooks/template.ipynb notebooks/your_topic_name.ipynb
+   cp notebooks/template.ipynb notebooks/your_topic.ipynb
    ```
+2. **Edit** your notebook
+3. **Wait for midnight** - auto-added to `myst.yml` and deployed
 
-2. **Edit your new notebook** with your learning notes
-
-3. **Add it to the table of contents** (`_toc.yml`):
+### Manual (Immediate)
+1. **Create notebook**: `cp notebooks/template.ipynb notebooks/your_topic.ipynb`
+2. **Edit** your notebook
+3. **Add to `myst.yml`**:
    ```yaml
-   chapters:
-     - file: notebooks/example_notebook
-     - file: notebooks/your_topic_name  # Add this line
+   toc:
+     - file: notebooks/your_topic
    ```
-
-4. **Commit and push**:
+4. **Push**:
    ```bash
    git add .
-   git commit -m "Add notes on [your topic]"
+   git commit -m "Add notes on your topic"
    git push
    ```
 
-5. **Wait 2-3 minutes** for GitHub Actions to build and deploy
-   - Check progress at: `https://github.com/YOUR_USERNAME/notes/actions`
+## ⏰ Auto-Commit (Daily at Midnight)
 
-## 🎨 Organizing Your Notebooks
-
-You can organize notebooks into sections in `_toc.yml`:
-
-```yaml
-format: jb-book
-root: intro
-chapters:
-  - file: notebooks/example_notebook
-  
-  - caption: Python Learning
-    chapters:
-      - file: notebooks/python_basics
-      - file: notebooks/python_advanced
-  
-  - caption: Machine Learning
-    chapters:
-      - file: notebooks/ml_intro
-      - file: notebooks/ml_models
+One-time setup:
+```bash
+cd scheduler
+./setup_cron.sh
 ```
+
+This automatically:
+- Scans `notebooks/` for new `.ipynb` files
+- Adds them to `myst.yml` toc
+- Commits and pushes at 00:00
+- Triggers deployment
+
+**Manual run**: `./scheduler/auto_commit.sh`  
+**View logs**: `cat scheduler/auto_commit.log`  
+**Remove**: `crontab -e` and delete the auto_commit line
 
 ## 🔧 Local Preview
 
-Build and preview your site locally before pushing:
-
 ```bash
-# Activate virtual environment (if created)
-source venv/bin/activate
-
-# Build the book
-jupyter-book build .
-
-# Open in browser
-xdg-open _build/html/index.html  # Linux
-# or
-open _build/html/index.html      # macOS
+npm install -g mystmd
+myst build --html
+xdg-open _build/html/index.html
 ```
-
-## 📦 Adding Python Packages
-
-If your notebooks need additional packages:
-
-1. Add them to `requirements.txt`
-2. Install locally: `pip install -r requirements.txt`
-3. Commit and push - GitHub Actions will install them automatically
 
 ## 🎯 Workflow
 
+**Automated** (after cron setup):
 ```
-Write Notes → Save Notebook → Update _toc.yml → Git Push → Auto-Deploy ✨
+Write Notebooks → Save → Wait (midnight) → Auto-add to TOC → Auto-Deploy ✨
 ```
 
-That's it! No manual building or deployment needed.
-
-## 💡 Tips
-
-- **Auto-save**: Jupyter will auto-save your notebooks as you work
-- **Execution**: Code cells will be executed during the build (configurable in `_config.yml`)
-- **Math**: Use LaTeX syntax for math equations: `$E = mc^2$`
-- **Images**: Store images in a `images/` folder and reference them in markdown
-- **Dark mode**: The theme supports dark mode automatically!
-
-## 🐛 Troubleshooting
-
-**Build failing?**
-- Check the Actions tab on GitHub for error messages
-- Common issues: missing packages in `requirements.txt`, syntax errors in notebooks
-
-**Site not updating?**
-- Check that GitHub Pages is enabled (Settings → Pages → Source: GitHub Actions)
-- Wait a few minutes - builds can take 2-5 minutes
-
-**Want to customize the theme?**
-- Edit `_config.yml` - see [Jupyter Book docs](https://jupyterbook.org/customize/config.html)
+**Manual** (immediate):
+```
+Write Notebooks → Update myst.yml → Git Push → Auto-Deploy ✨
+```
 
