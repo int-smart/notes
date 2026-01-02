@@ -5,10 +5,8 @@ project:
     - name: Abhishek
   github: int-smart/notes
   toc:
-    - file: notebooks/template
     - file: intro.md
     - file: notebooks/dynamic_initialization.ipynb
-    - file: notebooks/example_notebook
     - file: notebooks/rotations
 
 site:
