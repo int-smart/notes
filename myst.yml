@@ -8,6 +8,7 @@ project:
     - file: intro.md
     - file: notebooks/dynamic_initialization.ipynb
     - file: notebooks/rotations
+    - file: notebooks/triangulation
 
 site:
   template: book-theme
