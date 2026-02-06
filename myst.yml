@@ -10,7 +10,8 @@ project:
     - file: notebooks/rotations
     - file: notebooks/triangulation
     - file: notebooks/Updates
-
+    - file: notebooks/Cartographer
+    - file: notebooks/CudaFundamentals
 site:
   template: book-theme
   options:
