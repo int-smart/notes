@@ -12,6 +12,7 @@ project:
     - file: notebooks/Updates
     - file: notebooks/Cartographer
     - file: notebooks/CudaFundamentals
+    - file: notebooks/Prediction
 site:
   template: book-theme
   options:
