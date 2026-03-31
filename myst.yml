@@ -13,6 +13,7 @@ project:
     - file: notebooks/Cartographer
     - file: notebooks/CudaFundamentals
     - file: notebooks/Prediction
+    - file: notebooks/iSam2
 site:
   template: book-theme
   options:
